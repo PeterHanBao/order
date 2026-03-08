@@ -83,6 +83,28 @@
   .product-name { font-size: 14px; font-weight: 600; color: var(--dark); line-height: 1.4; }
   .product-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
+  .price-tiers {
+    display: flex; gap: 6px; padding: 10px 16px;
+    background: var(--orange-pale); border-bottom: 1px solid #FFE0CC; flex-wrap: wrap;
+  }
+  .price-tier-item {
+    display: flex; flex-direction: column; align-items: center;
+    background: white; border-radius: 8px; padding: 5px 10px; flex: 1; min-width: 60px;
+    border: 1.5px solid #FFD4BC; transition: all 0.2s;
+  }
+  .price-tier-item.active { border-color: var(--orange); background: var(--orange); }
+  .price-tier-item.active .tier-price { color: white; }
+  .price-tier-item.active .tier-range { color: rgba(255,255,255,0.8); }
+  .tier-range { font-size: 10px; color: var(--muted); }
+  .tier-price { font-size: 13px; font-weight: 700; color: var(--orange); }
+
+  .product-total-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 16px; background: #FAFAFA; border-bottom: 1px solid #F0EBE8;
+    font-size: 12px; color: var(--muted);
+  }
+  .product-total-qty { font-weight: 600; color: var(--dark); }
+
   .sku-row {
     display: flex; align-items: center; padding: 12px 16px;
     border-bottom: 1px solid #F5F0ED; gap: 10px; transition: background 0.15s;
@@ -226,18 +248,158 @@ const FEISHU_WEBHOOK = 'https://feishu-proxy.wanghan19950822.workers.dev';
 const products = [
   {
     id: 1,
-    name: "【LELEORANGE】橙意心动小队挂件",
+    name: "【LELEORANGE】橙意心动小队小挂件",
     sub: "乐刻自营新款挂件",
     skus: [
       { code: "6979181870129", name: "哑铃-平衡仲裁者", stock: 2588 },
       { code: "6979181870143", name: "壶铃-摇摆狂想者", stock: 4507 },
       { code: "6979181870167", name: "壶铃-能量小甜心", stock: 2481 },
       { code: "6979181870136", name: "杠铃片-圆润实力派", stock: 4705 },
-      { code: "6979181870150", name: "药球-抛摔艺术家", stock: 1227 },
+      { code: "6979181870150", name: "药球-抛掷艺术家", stock: 1227 },
     ],
     prices: { scatter: 19.9, p10: 16.9, p50: 14.9, p100: 12.9 }
-  }
-  // 继续添加更多商品...
+  },
+  {
+    id: 2,
+    name: "【LELEORANGE】自适应舒适运动袜",
+    sub: "男女款多色可选",
+    skus: [
+      { code: "6979181870174", name: "男款-黑色", stock: 2479 },
+      { code: "6979181870181", name: "男款-白色", stock: 2532 },
+      { code: "6979181870198", name: "女款-黑色", stock: 2570 },
+      { code: "6979181870204", name: "女款-白色", stock: 2209 },
+    ],
+    prices: { scatter: 14.9, p10: 10.9, p50: 9.9, p100: 8.9 }
+  },
+  {
+    id: 3,
+    name: "【LELEORANGE】25款 运动摇摇杯 LLOAT2509",
+    sub: "600ml大容量运动水杯",
+    skus: [
+      { code: "6977993023146", name: "黑色", stock: 1015 },
+      { code: "6977993023139", name: "白色", stock: 1191 },
+    ],
+    prices: { scatter: 18.9, p10: 14.9, p50: 12.9, p100: 10.9 }
+  },
+  {
+    id: 4,
+    name: "【LELEORANGE】25款 冷感运动毛巾",
+    sub: "多色印花可选",
+    skus: [
+      { code: "6977993024723", name: "橙色", stock: 370 },
+      { code: "6977993024730", name: "绿色", stock: 149 },
+      { code: "6977993024716", name: "蓝色", stock: 408 },
+      { code: "6977993025775", name: "亮橙色印花", stock: 432 },
+      { code: "6977993025799", name: "亮蓝色印花", stock: 441 },
+      { code: "6977993025782", name: "浅绿色印花", stock: 296 },
+    ],
+    prices: { scatter: 18.9, p10: 14.9, p50: 12.9, p100: 10.9 }
+  },
+  {
+    id: 5,
+    name: "【LELEORANGE】25款 百变魔术头巾",
+    sub: "多色可选",
+    skus: [
+      { code: "6977993024792", name: "浅蓝色", stock: 232 },
+      { code: "6977993024785", name: "浅绿色", stock: 247 },
+      { code: "6977993024778", name: "粉色", stock: 235 },
+      { code: "6977993024761", name: "蓝色", stock: 263 },
+      { code: "6977993024747", name: "橙色", stock: 201 },
+    ],
+    prices: { scatter: 18.9, p10: 14.9, p50: 12.9, p100: 10.9 }
+  },
+  {
+    id: 6,
+    name: "LELEORANGE PU斜跨健身包（LLOAB2404）",
+    sub: "时尚运动单肩包",
+    skus: [
+      { code: "6977993023481", name: "白色", stock: 2103 },
+      { code: "6977993023498", name: "黑色", stock: 3658 },
+      { code: "6977993023504", name: "蓝色", stock: 1274 },
+      { code: "6977993023511", name: "绿色", stock: 419 },
+    ],
+    prices: { scatter: 46, p10: 42, p50: 40, p100: 38 }
+  },
+  {
+    id: 7,
+    name: "【LELEORANGE】25款 托特包",
+    sub: "多色可选",
+    skus: [
+      { code: "6977993023573", name: "深牛仔蓝", stock: 195 },
+      { code: "6977993023559", name: "米白色", stock: 348 },
+      { code: "6977993023566", name: "黑色", stock: 373 },
+      { code: "6977993025850", name: "浅牛仔蓝", stock: 154 },
+    ],
+    prices: { scatter: 46, p10: 42, p50: 40, p100: 38 }
+  },
+  {
+    id: 8,
+    name: "【LELEORANGE】25款 触控数显筋膜枪",
+    sub: "专业运动放松",
+    skus: [
+      { code: "6977993023429", name: "标准款", stock: 3023 },
+    ],
+    prices: { scatter: 69, p10: 65, p50: 62, p100: 59 }
+  },
+  {
+    id: 9,
+    name: "【LELEORANGE】25款 畅饮壶（吨吨桶）1600ml",
+    sub: "大容量运动水壶",
+    skus: [
+      { code: "6977993024969", name: "标准款", stock: 208 },
+    ],
+    prices: { scatter: 33, p10: 29, p50: 27, p100: 25 }
+  },
+  {
+    id: 10,
+    name: "【LELEORANGE】25款 帆布包",
+    sub: "简约休闲帆布包",
+    skus: [
+      { code: "6977993023528", name: "黑色", stock: 396 },
+      { code: "6977993023535", name: "白色", stock: 294 },
+    ],
+    prices: { scatter: 18.9, p10: 14.9, p50: 13.9, p100: 11.9 }
+  },
+  {
+    id: 11,
+    name: "HILEFIT 乐刻运动9周年保温杯礼盒",
+    sub: "精美礼盒装保温杯",
+    skus: [
+      { code: "6974712485223", name: "蓝色", stock: 840 },
+      { code: "6974712485230", name: "白色", stock: 18 },
+    ],
+    prices: { scatter: 63, p10: 59, p50: 55, p100: 52 }
+  },
+  {
+    id: 12,
+    name: "【HiLEFIT】笑脸帆布袋 001（带亚克力牌）",
+    sub: "可爱笑脸设计",
+    skus: [
+      { code: "6974712481072", name: "米色", stock: 1368 },
+    ],
+    prices: { scatter: 36, p10: 32, p50: 29, p100: 25 }
+  },
+  {
+    id: 13,
+    name: "【HiLEFIT】乐刻定制运动潮酷飞盘",
+    sub: "乐刻联名款飞盘",
+    skus: [
+      { code: "6974712481669", name: "橙底logo", stock: 126 },
+      { code: "6974712481676", name: "白底人物", stock: 6 },
+      { code: "6974712481683", name: "白底logo", stock: 128 },
+    ],
+    prices: { scatter: 23.9, p10: 19.9, p50: 15.9, p100: 9.9 }
+  },
+  {
+    id: 14,
+    name: "【乐刻运动 X 甫士】联名款随行 MINI筋膜枪",
+    sub: "便携随行筋膜枪",
+    skus: [
+      { code: "6974712481706", name: "太空银", stock: 419 },
+      { code: "6974712481713", name: "乐刻橙", stock: 2 },
+    ],
+    prices: { scatter: 113, p10: 109, p50: 99, p100: 89 }
+  },
 ];
 
 function getPrice(prices, qty) {
@@ -247,10 +409,25 @@ function getPrice(prices, qty) {
   return { price: prices.scatter, label: '散件价' };
 }
 
+function getProductTotalQty(pi) {
+  let total = 0;
+  products[pi].skus.forEach((sku, si) => {
+    total += parseInt(document.getElementById(`qty_${pi}_${si}`)?.value || 0) || 0;
+  });
+  return total;
+}
+
 function renderProducts() {
   const container = document.getElementById('productList');
   container.innerHTML = '';
   products.forEach((product, pi) => {
+    const p = product.prices;
+    const tiers = [
+      { range: '1-9件', price: p.scatter },
+      { range: '≥10件', price: p.p10 },
+      { range: '≥50件', price: p.p50 },
+      { range: '≥100件', price: p.p100 },
+    ];
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
@@ -260,6 +437,18 @@ function renderProducts() {
           <div class="product-name">${product.name}</div>
           <div class="product-sub">${product.sub}</div>
         </div>
+      </div>
+      <div class="price-tiers">
+        ${tiers.map((t, i) => `
+          <div class="price-tier-item" id="tierItem_${pi}_${i}">
+            <span class="tier-range">${t.range}</span>
+            <span class="tier-price">¥${t.price}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="product-total-row">
+        <span>本品合计数量</span>
+        <span class="product-total-qty" id="productTotalQty_${pi}">0 件</span>
       </div>
       <div id="skuList_${pi}"></div>
     `;
@@ -274,7 +463,7 @@ function renderProducts() {
           <div class="sku-code">${sku.code}</div>
         </div>
         <div class="sku-price-display" id="priceDisplay_${pi}_${si}">
-          <div class="current-price">¥${product.prices.scatter}</div>
+          <div class="current-price">¥${p.scatter}</div>
           <div class="price-tier-label">散件价</div>
         </div>
         <div class="qty-control">
@@ -289,11 +478,28 @@ function renderProducts() {
   });
 }
 
+function updateProductPriceDisplay(pi) {
+  const totalQty = getProductTotalQty(pi);
+  const info = getPrice(products[pi].prices, totalQty);
+  products[pi].skus.forEach((sku, si) => {
+    document.getElementById(`priceDisplay_${pi}_${si}`).innerHTML = `
+      <div class="current-price">¥${info.price}</div>
+      <div class="price-tier-label">${info.label}</div>
+    `;
+  });
+  const activeIndex = totalQty >= 100 ? 3 : totalQty >= 50 ? 2 : totalQty >= 10 ? 1 : 0;
+  [0,1,2,3].forEach(i => {
+    const el = document.getElementById(`tierItem_${pi}_${i}`);
+    if (el) el.classList.toggle('active', i === activeIndex);
+  });
+  document.getElementById(`productTotalQty_${pi}`).textContent = `${totalQty} 件`;
+}
+
 function changeQty(pi, si, delta) {
   const input = document.getElementById(`qty_${pi}_${si}`);
   let val = Math.max(0, (parseInt(input.value) || 0) + delta);
   input.value = val;
-  updatePriceDisplay(pi, si, val);
+  updateProductPriceDisplay(pi);
   updateSummary();
 }
 
@@ -301,25 +507,19 @@ function onQtyInput(pi, si) {
   const input = document.getElementById(`qty_${pi}_${si}`);
   let val = Math.max(0, parseInt(input.value) || 0);
   input.value = val;
-  updatePriceDisplay(pi, si, val);
+  updateProductPriceDisplay(pi);
   updateSummary();
-}
-
-function updatePriceDisplay(pi, si, qty) {
-  const info = getPrice(products[pi].prices, qty);
-  document.getElementById(`priceDisplay_${pi}_${si}`).innerHTML = `
-    <div class="current-price">¥${info.price}</div>
-    <div class="price-tier-label">${info.label}</div>
-  `;
 }
 
 function updateSummary() {
   let total = 0, totalQty = 0, itemCount = 0;
   products.forEach((product, pi) => {
+    const productTotalQty = getProductTotalQty(pi);
+    const info = getPrice(product.prices, productTotalQty);
     product.skus.forEach((sku, si) => {
-      const qty = parseInt(document.getElementById(`qty_${pi}_${si}`).value) || 0;
+      const qty = parseInt(document.getElementById(`qty_${pi}_${si}`)?.value || 0) || 0;
       if (qty > 0) {
-        total += getPrice(product.prices, qty).price * qty;
+        total += info.price * qty;
         totalQty += qty;
         itemCount++;
       }
@@ -332,15 +532,14 @@ function updateSummary() {
 }
 
 // ========== 发送飞书机器人通知 ==========
-async function writeToFeishu(orderData) {
-  const msg = `🛍️ 新订单提醒\n\n👤 客户：${orderData.name}\n📱 联系：${orderData.contact}\n📦 地址：${orderData.address}\n🏢 成本中心：${orderData.costCenter || '未填写'}\n\n📋 订单明细：\n${orderData.detail}\n\n💰 合计：${orderData.totalQty}件 · ¥${orderData.totalAmount.toFixed(2)}\n📅 时间：${orderData.submitTime}${orderData.note ? '\n📝 备注：' + orderData.note : ''}`;
+async function writeToFeishu(payload) {
   const res = await fetch(FEISHU_WEBHOOK, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
+    body: JSON.stringify(payload)
   });
   const result = await res.json();
-  if (result.code !== 0) throw new Error(result.msg || '发送失败');
+  if (result.code !== 0) throw new Error(result.msg || '写入失败');
   return result;
 }
 
@@ -387,12 +586,43 @@ async function submitOrder() {
   btn.textContent = '提交中...';
 
   try {
-    await writeToFeishu({
-      name, contact, address, costCenter, note,
-      detail: detailText,
-      totalQty, totalAmount,
-      submitTime
+    // 每个SKU单独写一行
+    const skuRows = [];
+    products.forEach((product, pi) => {
+      const productTotalQty = getProductTotalQty(pi);
+      const info = getPrice(product.prices, productTotalQty);
+      product.skus.forEach((sku, si) => {
+        const qty = parseInt(document.getElementById(`qty_${pi}_${si}`)?.value || 0) || 0;
+        if (qty > 0) {
+          skuRows.push({
+            productName: product.name,
+            skuName: sku.name,
+            skuCode: sku.code,
+            qty,
+            unitPrice: info.price,
+            subtotal: info.price * qty
+          });
+        }
+      });
     });
+
+    for (const row of skuRows) {
+      await writeToFeishu({
+        fields: {
+          '客户姓名': name,
+          '联系方式': contact,
+          '收件地址': address,
+          '成本中心': costCenter,
+          '备注': note,
+          '商品名称': row.productName + ' ' + row.skuName,
+          '商品条码': row.skuCode,
+          '商品件数': row.qty,
+          '单价': row.unitPrice,
+          '订单金额': row.subtotal,
+          '提交时间': submitTime,
+        }
+      });
+    }
     document.getElementById('modalIcon').textContent = '🎉';
     document.getElementById('modalTitle').textContent = '订单提交成功！';
     document.getElementById('modalMsg').textContent = '我们已收到您的订单，将尽快与您确认并安排发货。';
