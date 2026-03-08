@@ -220,10 +220,7 @@
 
 <script>
 // ========== 飞书配置 ==========
-const FEISHU_APP_ID = 'cli_a927ad2153b81bd3';
-const FEISHU_APP_SECRET = 'l6l72bNGnkHZoZDJ7gOkpd2NKTk0geh1';
-const BITABLE_APP_TOKEN = 'FIZlwrU2giMWRDkT5w2c946qnUb';
-const TABLE_ID = 'tblELiQbIsEzAr1a';
+const FEISHU_WEBHOOK = 'https://open.feishu.cn/open-apis/bot/v2/hook/b5ec77e7-07d0-4889-82e4-33c842a31d00';
 
 // ========== 商品数据 ==========
 const products = [
@@ -334,46 +331,16 @@ function updateSummary() {
     : '尚未选择商品';
 }
 
-// ========== 获取飞书 Token ==========
-async function getFeishuToken() {
-  const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+// ========== 发送飞书机器人通知 ==========
+async function writeToFeishu(orderData) {
+  const msg = `🛍️ 新订单提醒\n\n👤 客户：${orderData.name}\n📱 联系：${orderData.contact}\n📦 地址：${orderData.address}\n🏢 成本中心：${orderData.costCenter || '未填写'}\n\n📋 订单明细：\n${orderData.detail}\n\n💰 合计：${orderData.totalQty}件 · ¥${orderData.totalAmount.toFixed(2)}\n📅 时间：${orderData.submitTime}${orderData.note ? '\n📝 备注：' + orderData.note : ''}`;
+  const res = await fetch(FEISHU_WEBHOOK, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ app_id: FEISHU_APP_ID, app_secret: FEISHU_APP_SECRET })
+    body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
   });
-  const data = await res.json();
-  return data.tenant_access_token;
-}
-
-// ========== 写入飞书多维表格 ==========
-async function writeToFeishu(orderData) {
-  const token = await getFeishuToken();
-  const res = await fetch(
-    `https://open.feishu.cn/open-apis/bitable/v1/apps/${BITABLE_APP_TOKEN}/tables/${TABLE_ID}/records`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        fields: {
-          '客户姓名': orderData.name,
-          '联系方式': orderData.contact,
-          '收件地址': orderData.address,
-          '商品名称': orderData.productNames,
-          '商品条码': orderData.skuCodes,
-          '商品件数': orderData.totalQty,
-          '订单金额': orderData.totalAmount,
-          '成本中心': orderData.costCenter,
-          '备注': orderData.note,
-          '提交时间': orderData.submitTime,
-        }
-      })
-    }
-  );
   const result = await res.json();
-  if (result.code !== 0) throw new Error(result.msg);
+  if (result.code !== 0) throw new Error(result.msg || '发送失败');
   return result;
 }
 
@@ -422,8 +389,7 @@ async function submitOrder() {
   try {
     await writeToFeishu({
       name, contact, address, costCenter, note,
-      productNames: productNames.join('、'),
-      skuCodes: skuCodes.join('、'),
+      detail: detailText,
       totalQty, totalAmount,
       submitTime
     });
