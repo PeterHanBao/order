@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乐刻运动 · 集采订单</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF6B35;
+    --orange-light: #FF8C5A;
+    --orange-pale: #FFF0EA;
+    --dark: #1A1A2E;
+    --mid: #2D2D44;
+    --text: #333;
+    --muted: #888;
+    --border: #E8E0DB;
+    --success: #2ECC71;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans SC', sans-serif; background: #F7F3F0; color: var(--text); min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--mid) 100%);
+    color: white; padding: 32px 20px 28px; text-align: center; position: relative; overflow: hidden;
+  }
+  header::before {
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 180px; height: 180px; background: var(--orange); border-radius: 50%; opacity: 0.15;
+  }
+  .header-badge {
+    display: inline-block; background: var(--orange); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+    letter-spacing: 2px; margin-bottom: 12px;
+  }
+  header h1 { font-size: 26px; font-weight: 700; position: relative; }
+  header p { font-size: 13px; opacity: 0.6; margin-top: 6px; position: relative; }
+
+  .price-banner {
+    background: white; border-bottom: 2px solid var(--orange-pale);
+    padding: 14px 20px; display: flex; gap: 8px; overflow-x: auto; justify-content: center;
+  }
+  .tier-tag {
+    display: flex; flex-direction: column; align-items: center;
+    background: var(--orange-pale); border: 1.5px solid #FFD4BC;
+    border-radius: 10px; padding: 8px 16px; min-width: 80px; flex-shrink: 0;
+  }
+  .tier-tag .tier-label { font-size: 10px; color: var(--muted); font-weight: 500; }
+  .tier-tag .tier-qty { font-size: 13px; font-weight: 700; color: var(--dark); }
+
+  main { max-width: 600px; margin: 0 auto; padding: 20px 16px 140px; }
+
+  .section-title {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase; margin: 24px 0 12px;
+  }
+
+  .info-card {
+    background: white; border-radius: 16px; padding: 20px;
+    border: 1.5px solid var(--border); display: flex; flex-direction: column; gap: 12px;
+  }
+  .field-row { display: flex; flex-direction: column; gap: 5px; }
+  .field-row label { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .field-row input, .field-row textarea {
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px;
+    font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s; background: #FAFAFA;
+  }
+  .field-row input:focus, .field-row textarea:focus { border-color: var(--orange); background: white; }
+
+  .product-card {
+    background: white; border-radius: 16px; border: 1.5px solid var(--border);
+    overflow: hidden; margin-bottom: 16px;
+  }
+  .product-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px; border-bottom: 1px solid var(--border);
+  }
+  .product-num {
+    width: 28px; height: 28px; background: var(--dark); color: white;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .product-name { font-size: 14px; font-weight: 600; color: var(--dark); line-height: 1.4; }
+  .product-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .sku-row {
+    display: flex; align-items: center; padding: 12px 16px;
+    border-bottom: 1px solid #F5F0ED; gap: 10px; transition: background 0.15s;
+  }
+  .sku-row:last-child { border-bottom: none; }
+  .sku-row:hover { background: #FDFAF8; }
+  .sku-info { flex: 1; min-width: 0; }
+  .sku-name { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sku-code { font-size: 11px; color: #BBB; margin-top: 2px; }
+
+  .sku-price-display { display: flex; flex-direction: column; align-items: flex-end; min-width: 70px; }
+  .current-price { font-size: 15px; font-weight: 700; color: var(--orange); }
+  .price-tier-label { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  .qty-control { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .qty-btn {
+    width: 30px; height: 30px; border: 1.5px solid var(--border); background: white;
+    border-radius: 8px; font-size: 16px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; color: var(--dark); transition: all 0.15s;
+  }
+  .qty-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .qty-input {
+    width: 44px; text-align: center; border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 5px 4px; font-size: 14px; font-weight: 600;
+    font-family: inherit; outline: none; color: var(--dark);
+  }
+  .qty-input:focus { border-color: var(--orange); }
+
+  .summary-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; background: white;
+    border-top: 2px solid var(--border); padding: 14px 20px 20px;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.08);
+  }
+  .summary-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
+  .summary-info { flex: 1; }
+  .summary-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .summary-total { font-size: 24px; font-weight: 700; color: var(--orange); line-height: 1; margin-top: 2px; }
+  .summary-count { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: white; border: none; border-radius: 14px; padding: 14px 28px;
+    font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 4px 16px rgba(255,107,53,0.35); flex-shrink: 0;
+  }
+  .submit-btn:hover { transform: translateY(-1px); }
+  .submit-btn:disabled { background: #DDD; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 100; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal { background: white; border-radius: 20px; padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; }
+  .modal-icon { font-size: 48px; margin-bottom: 12px; }
+  .modal h2 { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+  .modal p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .modal-btn {
+    margin-top: 20px; background: var(--orange); color: white; border: none;
+    border-radius: 12px; padding: 12px 32px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; width: 100%;
+  }
+  .order-detail {
+    background: var(--orange-pale); border-radius: 12px; padding: 14px 16px;
+    margin-top: 16px; text-align: left; font-size: 13px; line-height: 2;
+    color: var(--dark); max-height: 200px; overflow-y: auto; white-space: pre-wrap;
+  }
+  .loading { opacity: 0.6; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">集采订单</div>
+  <h1>🛍️ 商品集采下单</h1>
+  <p>选择商品 · 填写数量 · 自动计算金额</p>
+</header>
+
+<div class="price-banner">
+  <div class="tier-tag"><span class="tier-label">散件</span><span class="tier-qty">1-9件</span></div>
+  <div class="tier-tag"><span class="tier-label">10件价</span><span class="tier-qty">≥10件</span></div>
+  <div class="tier-tag"><span class="tier-label">50件价</span><span class="tier-qty">≥50件</span></div>
+  <div class="tier-tag"><span class="tier-label">100件价</span><span class="tier-qty">≥100件</span></div>
+</div>
+
+<main>
+  <div class="section-title">客户信息</div>
+  <div class="info-card">
+    <div class="field-row">
+      <label>姓名 / 昵称 *</label>
+      <input type="text" id="customerName" placeholder="请输入您的姓名">
+    </div>
+    <div class="field-row">
+      <label>联系方式 *</label>
+      <input type="text" id="customerContact" placeholder="微信号 / 手机号">
+    </div>
+    <div class="field-row">
+      <label>收件地址 *</label>
+      <textarea id="customerAddress" rows="2" placeholder="省市区 · 详细地址 · 收件人姓名"></textarea>
+    </div>
+    <div class="field-row">
+      <label>成本中心 *</label>
+      <input type="text" id="costCenter" placeholder="请输入成本中心">
+    </div>
+    <div class="field-row">
+      <label>备注</label>
+      <textarea id="customerNote" rows="2" placeholder="特殊要求、发货说明等（可选）"></textarea>
+    </div>
+  </div>
+
+  <div class="section-title">选择商品</div>
+  <div id="productList"></div>
+</main>
+
+<div class="summary-bar">
+  <div class="summary-inner">
+    <div class="summary-info">
+      <div class="summary-label">预计金额</div>
+      <div class="summary-total" id="totalAmount">¥0.00</div>
+      <div class="summary-count" id="totalCount">尚未选择商品</div>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitOrder()">提交订单</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-icon" id="modalIcon">🎉</div>
+    <h2 id="modalTitle">订单提交成功！</h2>
+    <p id="modalMsg">我们已收到您的订单，将尽快与您确认并安排发货。</p>
+    <div class="order-detail" id="orderDetail"></div>
+    <button class="modal-btn" onclick="closeModal()">好的，知道了</button>
+  </div>
+</div>
+
+<script>
+// ========== 飞书配置 ==========
+const FEISHU_APP_ID = 'cli_a927ad2153b81bd3';
+const FEISHU_APP_SECRET = 'l6l72bNGnkHZoZDJ7gOkpd2NKTk0geh1';
+const BITABLE_APP_TOKEN = 'FIZlwrU2giMWRDkT5w2c946qnUb';
+const TABLE_ID = 'tblELiQbIsEzAr1a';
+
+// ========== 商品数据 ==========
+const products = [
+  {
+    id: 1,
+    name: "【LELEORANGE】橙意心动小队挂件",
+    sub: "乐刻自营新款挂件",
+    skus: [
+      { code: "6979181870129", name: "哑铃-平衡仲裁者", stock: 2588 },
+      { code: "6979181870143", name: "壶铃-摇摆狂想者", stock: 4507 },
+      { code: "6979181870167", name: "壶铃-能量小甜心", stock: 2481 },
+      { code: "6979181870136", name: "杠铃片-圆润实力派", stock: 4705 },
+      { code: "6979181870150", name: "药球-抛摔艺术家", stock: 1227 },
+    ],
+    prices: { scatter: 19.9, p10: 16.9, p50: 14.9, p100: 12.9 }
+  }
+  // 继续添加更多商品...
+];
+
+function getPrice(prices, qty) {
+  if (qty >= 100) return { price: prices.p100, label: '100件价' };
+  if (qty >= 50)  return { price: prices.p50,  label: '50件价' };
+  if (qty >= 10)  return { price: prices.p10,  label: '10件价' };
+  return { price: prices.scatter, label: '散件价' };
+}
+
+function renderProducts() {
+  const container = document.getElementById('productList');
+  container.innerHTML = '';
+  products.forEach((product, pi) => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="product-header">
+        <div class="product-num">${pi + 1}</div>
+        <div>
+          <div class="product-name">${product.name}</div>
+          <div class="product-sub">${product.sub}</div>
+        </div>
+      </div>
+      <div id="skuList_${pi}"></div>
+    `;
+    container.appendChild(card);
+    const list = card.querySelector(`#skuList_${pi}`);
+    product.skus.forEach((sku, si) => {
+      const row = document.createElement('div');
+      row.className = 'sku-row';
+      row.innerHTML = `
+        <div class="sku-info">
+          <div class="sku-name">${sku.name}</div>
+          <div class="sku-code">${sku.code}</div>
+        </div>
+        <div class="sku-price-display" id="priceDisplay_${pi}_${si}">
+          <div class="current-price">¥${product.prices.scatter}</div>
+          <div class="price-tier-label">散件价</div>
+        </div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty(${pi},${si},-1)">−</button>
+          <input class="qty-input" type="number" min="0" value="0"
+            id="qty_${pi}_${si}" oninput="onQtyInput(${pi},${si})">
+          <button class="qty-btn" onclick="changeQty(${pi},${si},1)">+</button>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+  });
+}
+
+function changeQty(pi, si, delta) {
+  const input = document.getElementById(`qty_${pi}_${si}`);
+  let val = Math.max(0, (parseInt(input.value) || 0) + delta);
+  input.value = val;
+  updatePriceDisplay(pi, si, val);
+  updateSummary();
+}
+
+function onQtyInput(pi, si) {
+  const input = document.getElementById(`qty_${pi}_${si}`);
+  let val = Math.max(0, parseInt(input.value) || 0);
+  input.value = val;
+  updatePriceDisplay(pi, si, val);
+  updateSummary();
+}
+
+function updatePriceDisplay(pi, si, qty) {
+  const info = getPrice(products[pi].prices, qty);
+  document.getElementById(`priceDisplay_${pi}_${si}`).innerHTML = `
+    <div class="current-price">¥${info.price}</div>
+    <div class="price-tier-label">${info.label}</div>
+  `;
+}
+
+function updateSummary() {
+  let total = 0, totalQty = 0, itemCount = 0;
+  products.forEach((product, pi) => {
+    product.skus.forEach((sku, si) => {
+      const qty = parseInt(document.getElementById(`qty_${pi}_${si}`).value) || 0;
+      if (qty > 0) {
+        total += getPrice(product.prices, qty).price * qty;
+        totalQty += qty;
+        itemCount++;
+      }
+    });
+  });
+  document.getElementById('totalAmount').textContent = `¥${total.toFixed(2)}`;
+  document.getElementById('totalCount').textContent = totalQty > 0
+    ? `共 ${itemCount} 款 · ${totalQty} 件商品`
+    : '尚未选择商品';
+}
+
+// ========== 获取飞书 Token ==========
+async function getFeishuToken() {
+  const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ app_id: FEISHU_APP_ID, app_secret: FEISHU_APP_SECRET })
+  });
+  const data = await res.json();
+  return data.tenant_access_token;
+}
+
+// ========== 写入飞书多维表格 ==========
+async function writeToFeishu(orderData) {
+  const token = await getFeishuToken();
+  const res = await fetch(
+    `https://open.feishu.cn/open-apis/bitable/v1/apps/${BITABLE_APP_TOKEN}/tables/${TABLE_ID}/records`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fields: {
+          '客户姓名': orderData.name,
+          '联系方式': orderData.contact,
+          '收件地址': orderData.address,
+          '商品名称': orderData.productNames,
+          '商品条码': orderData.skuCodes,
+          '商品件数': orderData.totalQty,
+          '订单金额': orderData.totalAmount,
+          '成本中心': orderData.costCenter,
+          '备注': orderData.note,
+          '提交时间': orderData.submitTime,
+        }
+      })
+    }
+  );
+  const result = await res.json();
+  if (result.code !== 0) throw new Error(result.msg);
+  return result;
+}
+
+// ========== 提交订单 ==========
+async function submitOrder() {
+  const name = document.getElementById('customerName').value.trim();
+  const contact = document.getElementById('customerContact').value.trim();
+  const address = document.getElementById('customerAddress').value.trim();
+  if (!name) { alert('请填写您的姓名'); return; }
+  if (!contact) { alert('请填写联系方式'); return; }
+  if (!address) { alert('请填写收件地址'); return; }
+  const costCenter = document.getElementById('costCenter').value.trim();
+  if (!costCenter) { alert('请填写成本中心'); return; }
+
+  let hasItem = false;
+  let detailText = '';
+  let productNames = [], skuCodes = [];
+  let totalQty = 0, totalAmount = 0;
+
+  products.forEach((product, pi) => {
+    product.skus.forEach((sku, si) => {
+      const qty = parseInt(document.getElementById(`qty_${pi}_${si}`).value) || 0;
+      if (qty > 0) {
+        hasItem = true;
+        const info = getPrice(product.prices, qty);
+        const subtotal = info.price * qty;
+        detailText += `· ${sku.name}\n  ${qty}件 × ¥${info.price}(${info.label}) = ¥${subtotal.toFixed(2)}\n`;
+        productNames.push(sku.name);
+        skuCodes.push(sku.code);
+        totalQty += qty;
+        totalAmount += subtotal;
+      }
+    });
+  });
+
+  if (!hasItem) { alert('请至少选择一件商品'); return; }
+
+  const note = document.getElementById('customerNote').value.trim();
+  const submitTime = new Date().toLocaleString('zh-CN');
+  const summary = `客户：${name}\n联系：${contact}\n地址：${address}\n${costCenter ? '成本中心：' + costCenter + '\n' : ''}${note ? '备注：' + note + '\n' : ''}\n${detailText}\n──────────\n合计：${totalQty}件 · ¥${totalAmount.toFixed(2)}`;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '提交中...';
+
+  try {
+    await writeToFeishu({
+      name, contact, address, costCenter, note,
+      productNames: productNames.join('、'),
+      skuCodes: skuCodes.join('、'),
+      totalQty, totalAmount,
+      submitTime
+    });
+    document.getElementById('modalIcon').textContent = '🎉';
+    document.getElementById('modalTitle').textContent = '订单提交成功！';
+    document.getElementById('modalMsg').textContent = '我们已收到您的订单，将尽快与您确认并安排发货。';
+    document.getElementById('orderDetail').textContent = summary;
+  } catch (e) {
+    document.getElementById('modalIcon').textContent = '⚠️';
+    document.getElementById('modalTitle').textContent = '提交失败';
+    document.getElementById('modalMsg').textContent = '网络异常，请截图此页面发给客服：' + e.message;
+    document.getElementById('orderDetail').textContent = summary;
+  }
+
+  document.getElementById('modalOverlay').classList.add('show');
+  btn.disabled = false;
+  btn.textContent = '提交订单';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+renderProducts();
+</script>
+</body>
+</html>
